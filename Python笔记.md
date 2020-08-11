@@ -20,7 +20,7 @@ line3'''		# 三引号，表示多行内容
 num1 = 1	# Python可以处理任意大小的整数，当然包括负整数，在程序中的表示方法和数学上的写法一模一样
 ~~~
 
-<img src="C:\Users\hcf\Documents\Note\github\personal-study-nodes\images\687474703a2f2f74776f7761746572696d6167652e6f73732d636e2d6265696a696e672e616c6979756e63732e636f6d2f323031392d30382d33302d3033343533382e706e67.png" style="zoom:50%;" />
+<img src="images\img-int01.png" style="zoom:50%;" />
 
 ### 3. 浮点数（Float）
 
