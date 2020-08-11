@@ -518,3 +518,208 @@ print(sum2(1))
 
 
 ## 六、迭代器和生成器
+
+### 1. 迭代
+
+>  在 Python 中，给定一个 list 或 tuple，我们可以通过 for 循环来遍历这个 list 或 tuple ，这种遍历就是迭代。 
+>
+> 但Python 的 `for` 循环抽象程度要高于 Java 的 `for` 循环， 因为 Python 的 `for` 循环不仅可以用在 list 或tuple 上，还可以作用在其他可迭代对象上。
+>
+> 也就是说，**只要是可迭代的对象，无论有没有下标，都是可以迭代的**，迭代是 Python 最强大的功能之一，是访问集合元素的一种方式。
+
+~~~python
+# 遍历tuple
+tuple = (99, 'hello', True)
+for t in tuple:
+    print(t)
+# 遍历字符串
+for x in 'hello':
+    print(x, end='------')
+~~~
+
+打印结果如下：
+
+~~~python
+99
+hello
+True
+h------e------l------l------o------
+~~~
+
+
+
+### 2. 迭代器
+
+> + 迭代器是一个可以记住遍历的位置的对象
+> + 迭代器对象从集合的第一个元素开始访问，直到所有的元素被访问完结束。
+> + 迭代器只能往前不会后退。
+> +   迭代器有两个基本的方法：iter() 和 next(),且字符串，列表或元组对象都可用于创建迭代器，迭代器对象可以使用常规 for 语句进行遍历，也可以使用 next() 函数来遍历。 
+
+~~~python
+# 迭代器
+# 1. 字符串创建迭代器
+str1 = 'cold_boy'
+iter_str = iter(str1)
+# 2. list创建迭代器
+list1 = [1, 2, 3, 56, 66]
+iter_list = iter(list1)
+# 3.tuple创建迭代器
+tuple1 = (11, 'kkk', True)
+iter_tuple = iter(tuple1)
+
+# for 遍历
+for s in iter_str:
+    print(s, end='------')
+
+# 使用next遍历
+print()
+print(next(iter_tuple))
+print(next(iter_tuple))
+print(next(iter_tuple))
+~~~
+
+执行结果：
+
+![](images/20200811150447.png)
+
+
+
+### 3. 切片
+
+> 对于取list或tuple取指定索引范围的操作，用循环十分繁琐，因此，Python提供了切片（Slice）操作符，能大大简化这种操作。
+
+~~~python
+# 1. 取list前三个值
+list = list(range(30))
+l1 = list[0:3]
+print(l1)
+# 2. 从第一个索引开始的情况,0可省略
+l2 = list[:3]
+print(l2)
+# 3. 用负数作为索引（最后一个数是-1）
+l3 = list[-5:]
+print(l3)
+# 4. 取索引为10-15的值
+l4 = list[10:15]
+print(l4)
+# 5. 前10个数，每隔两个取一次
+l5 = list[:10:2]
+print(l5)
+# 6. 所有数，每隔5个取一次
+l6 = list[::5]
+print(l6)
+# 7. 复制一个list
+l7 = list[:]
+print(l7)
+# tuple、字符串也可以进行切片操作
+
+~~~
+
+执行结果：
+
+![](images/20200811152651.png)
+
+
+
+### 4. list生成式（列表生成式）
+
++ 利用 `range(x,y)` 创建list
+
+~~~python
+list1=list ( range (1,31) )
+print(list1)
+~~~
+
+执行结果：
+
+```python
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+```
+
+打印九九乘法表：
+
+~~~python
+print('\n'.join([' '.join ('%dx%d=%2d' % (x,y,x*y)  for x in range(1,y+1)) for y in range(1,10)]))
+~~~
+
+执行结果：
+
+![](images/20200811153153.png)
+
++ **list生成式的创建**
+
+list 生成式的语法为：
+
+```python
+[expr for iter_var in iterable] 
+[expr for iter_var in iterable if cond_expr]
+```
+
+> 第一种语法：首先迭代 iterable 里所有内容，每一次迭代，都把 iterable 里相应内容放到iter_var 中，再在表达式中应用该 iter_var 的内容，最后用表达式的计算值生成一个列表。
+>
+> 第二种语法：加入了判断语句，只有满足条件的内容才把 iterable 里相应内容放到 iter_var 中，再在表达式中应用该 iter_var 的内容，最后用表达式的计算值生成一个列表。
+
+~~~python
+# 第一种：list的元素为遍历range函数的值加1得来
+list1 = [x + 1 for x in range(30)]
+print(list1)
+# 第二种：list的元素为遍历range函数的值加1得来，并且遍历的值必须为偶数
+list2 = [x + 1 for x in range(30) if x % 2 == 0]
+print(list2)
+~~~
+
+执行结果：
+
+![](images/20200811153813.png)
+
+
+
+### 5. 生成器
+
+> 如果列表元素可以按照某种算法推算出来，这种边循环边计算的机制，成为**生成器：generator**
+
++ **生成器的创建**
+
+> 最简单最简单的方法就是把一个列表生成式的 `[]` 改成 `()`
+
+~~~python
+# 生成器创建
+gen = (x * x for x in range(10))
+print(gen)
+~~~
+
+执行结果：
+
+~~~python
+<generator object <genexpr> at 0x000001A77D599C10>
+~~~
+
+> 创建 List 和 generator 的区别仅在于最外层的 `[]` 和 `()` 。
+>
+> 但是生成器并不真正创建数字列表， 而是返回一个生成器，这个生成器在每次计算出一个条目后，把这个条目“产生” ( yield ) 出来。
+>
+> 生成器表达式使用了“惰性计算” ( lazy evaluation，也有翻译为“延迟求值”，我以为这种按需调用 call by need 的方式翻译为惰性更好一些)，只有在检索时才被赋值（ evaluated ），所以在列表比较长的情况下使用内存上更有效。
+
++ **遍历生成器的元素**
+
+`for` 循环和 `next()`函数都可以遍历生成器
+
+~~~python
+# 遍历生成器
+gen = (x * x for x in range(10))
+for g in gen:
+    print(g, end='-')
+~~~
+
+执行结果：
+
+~~~python
+0-1-4-9-16-25-36-49-64-81-
+~~~
+
++ **以函数的形式实现生成器**
+
+
+
+
+
