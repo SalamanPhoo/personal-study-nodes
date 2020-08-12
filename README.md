@@ -4,5 +4,5 @@
 
 ## 目录
 
-[1. Python笔记](Python笔记.md)
+1. **Python笔记** [[ALL](Python笔记.md) [SPLIT](split/python/README.md)] 
 
