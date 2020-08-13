@@ -492,7 +492,7 @@ print_user_info('小凯', age=11)
 
 ### 5. 匿名函数
 
-> python 使用 lambda 来创建匿名函数，也就是不再使用 def 语句这样标准的形式定义一个函数。 
+> python 使用 lambda 来创建匿名函数（lambda函数表达式），也就是不再使用 def 语句这样标准的形式定义一个函数。 
 >
 >匿名函数主要有以下特点：
 >
@@ -503,13 +503,23 @@ print_user_info('小凯', age=11)
 >**基本语法：**
 >
 >```python
->lambda [arg1 [,arg2,.....argn]]:expression
+>lambda 参数列表:返回值
 >```
 
 ~~~python
 # 匿名函数
 sum = lambda num1, num2: num1 + num2
+# 一般不用把lambda函数赋给一个变量的方式调用
 print(sum(1, 4))
+# 直接加括号调用(一般不这么用)
+print(( lambda num1, num2: num1 + num2)(12,4))
+# 使用filter(function,arr)函数举例
+arr = filter(lambda i: i % 2 == 0, [1, 4, 6, 7, 9, 10])
+print(list(arr))
+# 使用map(function,arr)函数举例
+l = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+r = map(lambda i: i + 1, l)
+print(list(r))
 ~~~
 
 >  注意：**尽管 lambda 表达式允许你定义简单函数，但是它的使用是有限制的。 你只能指定单个表达式，它的值就是最后的返回值。也就是说不能包含其他的语言特性了， 包括多个语句、条件表达式、迭代以及异常处理等等。** 
@@ -532,6 +542,54 @@ print(sum2(1))
 ![](images/20200811111012.png)
 
 > **这主要在于 lambda 表达式中的 num2 是一个自由变量，在运行时绑定值，而不是定义时就绑定，这跟函数的默认值参数定义是不同的。所以建议还是遇到这种情况还是使用第一种解法。**
+
+
+
+### 6. 作用域（scope）
+
++ **全局作用域**
+
+> 1. 全局作用域在程序（.py文件）执行时创建，在程序结束时销毁
+> 2. 在函数以外的区域都是全局作用域
+> 3. 在全局作用域中定义的变量，都属于全局变量，全局变量可以在程序的任意位置被访问
+
++ **函数作用域**
+
+> 1. 函数作用域在函数调用时创建，调用结束时销毁
+> 2. 函数每调用一次就会产生一个新的函数作用域
+> 3. 在函数作用域中定义的变量，都是局部变量，只能在函数内部被访问
+
++ **变量的查找**
+
+> 1. 当使用变量时，会优先在当前作用域寻找该变量，如果有则使用，没有则继续去上一级作用域寻找
+> 2. 在函数中为变量赋值时，默认都是局部变量。如果需要在函数内部修改全局变量，则需要使用`global`关键字来声明变量
+
+~~~python
+# 在函数内部修改全局变量
+a = 20
+def func():
+    global a	# 先声明a是全局变量
+    a = 10		# 再给a赋值
+    print('函数内部，a =', a)
+func()
+print('函数外部，a =', a)
+~~~
+
+执行效果：
+
+~~~python
+函数内部，a = 10
+函数外部，a = 10
+~~~
+
+获取当前命名空间和全局命名空间：
+
+~~~python
+# 获取当前的命名空间，返回一个dict
+locals()
+# 获取全局命名空间
+global()
+~~~
 
 
 
@@ -799,6 +857,35 @@ for t in triangles(10):  # 直接修改函数名即可运行
 执行结果：
 
 ![](images/20200812105953.png)
+
+
+
+### 6. `sort()`和`sorted()`
+
++ `sort()`
+
+> 对列表中元素进行排序，默认是直接比较列表中元素的大小，但`sort()`可以接受一个关键字参数`key`，`key`需要一个函数作为参数，每一个列表中的元素都会作为参数来调用函数，并使用函数的返回值来比较元素大小
+
+~~~python
+list = ['bbb', 'aa', 'eeeee', 'vvvvvvvv', 'llll']
+list.sort(key=len)		#此处的len是获取长度的函数len()
+print(list)
+~~~
+
++ `sorted()`
+
+> 1. `sorted()`函数的用法与`sort()`基本一致，但`sorted()`可以对任意序列进行排序
+> 2. 使用`sorted()`排序不会对原序列产生影响，而是返回一个新的序列
+
+~~~python
+list = ['bbb', 'aa', 'eeeee', 'vvvvvvvv', 'llll']
+list2 = sorted(list,key=len)
+print(list2)
+~~~
+
+
+
+
 
 
 
@@ -1195,8 +1282,443 @@ Hello ! 尊敬的用户：水水水
 
 ## 八、模块与包
 
-> 在 Python 中，一个 .py 文件就称之为一个模块（Module）
+### 1. 模块
 
-### 1. 模块的使用
+>  模块是一个包含 Python 定义和语句的文件。文件名就是模块名后跟文件后缀 `.py` 。在一个模块内部，模块名（作为一个字符串）可以通过全局变量 `__name__` 的值获得。 
 
-> 
+比如，创建一个`fibo.py`的模块：
+
+~~~python
+# fibo.py
+
+def fibo1(n):
+    a, b = 0, 1
+    for x in range(n):
+        print(a, end='  ')
+        a, b = b, a + b
+    print()
+    
+def fibo2(n):
+    a, b = 0, 1
+    for x in range(n):
+        print(a, end='--')
+        a, b = b, a + b
+    print()
+~~~
+
+在新的页面调用模块：
+
+~~~python
+# fibo_test.py
+import fibo
+
+fibo1.fibo(9)
+print(fibo.__name__)
+~~~
+
+执行效果：
+
+![](images/20200813094127.png)
+
+`import`语句还有一个变体：
+
+~~~python
+from fibo import fibo1, fibo2
+
+fibo1(9)
+fibo2(9)
+~~~
+
+> 这样不会把被调模块名引入到局部变量表里，比如此处的`fibo`变量是未定义的。
+
+还可以直接导入模块内所有名称：
+
+~~~python
+from fib import *
+~~~
+
+>  这会调入所有非以下划线（`_`）开头的名称。 
+>
+>  注意通常情况下从一个模块或者包内调入 `*` 的做法是不太被接受的， 因为这通常会导致代码的可读性很差 ， 因为它在解释器中引入了一组未知的名称，而它们很可能会覆盖一些你已经定义过的东西。 
+
+还可以在模块之后使用`as`将名称绑定引入的模块：
+
+~~~python
+import fibo as fb
+from fibo import fibo1, fibo2 as fb
+~~~
+
+
+
+### 2. 主模块和非主模块
+
+> 在 Python 函数中，如果一个函数调用了其他函数完成一项功能，我们称这个函数为主函数，如果一个函数没有调用其他函数，我们称这种函数为非主函数。主模块和非主模块的定义也类似，如果一个模块被直接使用，而没有被别人调用，我们称这个模块为主模块，如果一个模块被别人调用，我们称这个模块为非主模块。
+
++ **`__name__`属性：**
+
+如上面所提到的：`__name__`属性可以获取模块的名称，但是也可以利用这个属性来判断是否为主模块：
+
+~~~python
+if __name__ == '__main__':
+    print('当前为主模块')
+~~~
+
+> 当`__name__`属性值为`__main__`时，当前模块为主模块，此处可执行不想被其他模块引用的操作
+
+`dir()`函数：
+
+~~~python
+import fibo,sys
+print(dir(fibo))
+print(dir(sys))
+~~~
+
+执行效果：
+
+![](images/20200813102921.png)
+
+> 内置函数 [`dir()`](https://docs.python.org/zh-cn/3/library/functions.html#dir) 用于查找模块定义的名称。 它返回一个排序过的字符串列表。它会列出所有类型的名称：变量，模块，函数，等等
+
+
+
+### 3. 包
+
+>  包是一种通过用 “带点号的模块名” 来构造 Python 模块命名空间的方法 
+
+![](images/20200813113455.png)
+
+> 模块`fibo.py`在包`com.slmd.py`下。
+>
+> 每个包下都会有一个`__init__.py`文件，因为这个文件是必须的，否则，Python 就把这个目录当成普通目录，而不是一个包 。 `__init__.py` 可以是空文件，也可以有Python代码，因为 `__init__.py` 本身就是一个模块，而它对应的模块名就是它的包名。
+
+调用`fibo.py`模块：
+
+~~~python
+import com.slmd.py.fibo as fb
+import com.slmd.py as fibo
+from com.slmd.py.fibo import fibo as fibo1
+
+fb.fibo(9)
+fibo.fibo.fibo(9)
+fibo1(9)
+~~~
+
+执行效果：
+
+![](images/20200813113641.png)
+
+> 包支持`__path__`属性， 它被初始化为一个列表，其中包含在执行该文件中的代码之前保存包的文件 `__init__.py` 的目录的名称。这个变量可以修改；这样做会影响将来对包中包含的模块和子包的搜索。 
+
+
+
+### 4. 作用域
+
+> 以`_`为前缀命名的函数或变量都是非公开的（private），不应该被直接引用
+
+
+
+## 九、魔术方法
+
+***这个模块下代码大部分都是复制粘贴的，感觉这一节只要知道魔术方法是啥就行了，那些固定的方法以后慢慢摸索***
+
+> 在 Python 中，所有以 "__" 双下划线包起来的方法，都统称为"魔术方法（Magic Method）"。
+>
+> 比如类初始化方法`__init__`。
+>
+> 使用内置函数`dir()`可以列出类中所有魔术方法。
+
+### 1. [构造和初始化](https://github.com/SalamanPhoo/Python/blob/master/Article/PythonBasis/python10/2.md)
+
+> 构造`__new__`：在类被实例化时调用，有返回值
+>
+> 初始化`__init__`：初始化方法，只能返回`None`值
+
+~~~python
+class User:
+    def __new__(cls, *args, **kwargs):
+        print('调用了__new__方法')
+        return super(User, cls).__new__(cls)
+
+    def __init__(self, name, age):
+        print('调用了__init__方法')
+        self.__name = name
+        self.__age = age
+
+    def print_user(self):
+        print(self.__dict__)
+
+
+user = User('huahua', 11)
+user.print_user()
+~~~
+
+执行结果：
+
+![](images/20200813135407.png)
+
+
+
+### 2. [属性的访问控制魔术方法](https://github.com/SalamanPhoo/Python/blob/master/Article/PythonBasis/python10/3.md)
+
+| 方法                             | 说明                                                         |
+| -------------------------------- | ------------------------------------------------------------ |
+| `__getattr__(self, name)`        | 该方法定义了你试图访问一个不存在的属性时的行为。因此，重载该方法可以实现捕获错误拼写然后进行重定向, 或者对一些废弃的属性进行警告。 |
+| `__setattr__(self, name, value)` | 定义了对属性进行赋值和修改操作时的行为。不管对象的某个属性是否存在,都允许为该属性进行赋值.有一点需要注意，实现 `__setattr__` 时要避免"无限递归"的错误， |
+| `__delattr__(self, name)`        | `__delattr__` 与 `__setattr__` 很像，只是它定义的是你删除属性时的行为。实现 `__delattr__` 是同时要避免"无限递归"的错误 |
+| `__getattribute__(self, name)`   | `__getattribute__` 定义了你的属性被访问时的行为，相比较，`__getattr__` 只有该属性不存在时才会起作用。因此，在支持 `__getattribute__ `的 Python 版本,调用`__getattr__` 前必定会调用 `__getattribute__``__getattribute__` 同样要避免"无限递归"的错误。 |
+
+示例：
+
+~~~python
+class User(object):
+    def __getattr__(self, name):
+        print('调用了 __getattr__ 方法')
+        return super(User, self).__getattr__(name)
+
+    def __setattr__(self, name, value):
+        print('调用了 __setattr__ 方法')
+        return super(User, self).__setattr__(name, value)
+
+    def __delattr__(self, name):
+        print('调用了 __delattr__ 方法')
+        return super(User, self).__delattr__(name)
+
+    def __getattribute__(self, name):
+        print('调用了 __getattribute__ 方法')
+        return super(User, self).__getattribute__(name)
+
+
+if __name__ == '__main__':
+    user = User()
+    # 设置属性值，会调用 __setattr__
+    user.attr1 = True
+    # 属性存在,只有__getattribute__调用
+    user.attr1
+    try:
+        # 属性不存在, 先调用__getattribute__, 后调用__getattr__
+        user.attr2
+    except AttributeError:
+        pass
+    # __delattr__调用
+    del user.attr1
+~~~
+
+执行结果：
+
+~~~python
+调用了 __setattr__ 方法
+调用了 __getattribute__ 方法
+调用了 __getattribute__ 方法
+调用了 __getattr__ 方法
+调用了 __delattr__ 方法
+~~~
+
+
+
+### 3. [对象的描述器](https://github.com/SalamanPhoo/Python/blob/master/Article/PythonBasis/python10/4.md)
+
+~~~python
+class User(object):
+    def __init__(self, name='两点水', sex='男'):
+        self.sex = sex
+        self.name = name
+
+    def __get__(self, obj, objtype):
+        print('获取 name 值')
+        return self.name
+
+    def __set__(self, obj, val):
+        print('设置 name 值')
+        self.name = val
+
+
+class MyClass(object):
+    x = User('两点水', '男')
+    y = 5
+
+
+if __name__ == '__main__':
+    m = MyClass()
+    m.x = '花花'
+    print(m.x)
+    print(m.y)
+~~~
+
+输出：
+
+~~~python
+设置 name 值
+获取 name 值
+花花
+5
+~~~
+
+
+
+### 4. [自定义容器（Container）](https://github.com/SalamanPhoo/Python/blob/master/Article/PythonBasis/python10/5.md)
+
+> Python 中，常见的容器类型有: dict, tuple, list, string。其中也提到过可容器和不可变容器的概念。其中 tuple, string 是不可变容器，dict, list 是可变容器。
+
+| 功能                                                         | 说明                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 自定义不可变容器类型                                         | 需要定义 `__len__` 和 `__getitem__` 方法                     |
+| 自定义可变类型容器                                           | 在不可变容器类型的基础上增加定义 `__setitem__` 和 `__delitem__` |
+| 自定义的数据类型需要迭代                                     | 需定义 `__iter__`                                            |
+| 返回自定义容器的长度                                         | 需实现 `__len__(self)`                                       |
+| 自定义容器可以调用 `self[key]` ，如果 key 类型错误，抛出TypeError ，如果没法返回key对应的数值时,该方法应该抛出ValueError | 需要实现 `__getitem__(self, key)`                            |
+| 当执行 `self[key] = value` 时                                | 调用是 `__setitem__(self, key, value)`这个方法               |
+| 当执行 `del self[key]` 方法                                  | 其实调用的方法是 `__delitem__(self, key)`                    |
+| 当你想你的容器可以执行 `for x in container:` 或者使用 `iter(container)` 时 | 需要实现 `__iter__(self)` ，该方法返回的是一个迭代器         |
+
+~~~python
+class FunctionalList:
+    ''' 实现了内置类型list的功能,并丰富了一些其他方法: head, tail, init, last, drop, take'''
+
+    def __init__(self, values=None):
+        if values is None:
+            self.values = []
+        else:
+            self.values = values
+
+    def __len__(self):
+        return len(self.values)
+
+    def __getitem__(self, key):
+        return self.values[key]
+
+    def __setitem__(self, key, value):
+        self.values[key] = value
+
+    def __delitem__(self, key):
+        del self.values[key]
+
+    def __iter__(self):
+        return iter(self.values)
+
+    def __reversed__(self):
+        return FunctionalList(reversed(self.values))
+
+    def append(self, value):
+        self.values.append(value)
+
+    def head(self):
+        # 获取第一个元素
+        return self.values[0]
+
+    def tail(self):
+        # 获取第一个元素之后的所有元素
+        return self.values[1:]
+
+    def init(self):
+        # 获取最后一个元素之前的所有元素
+        return self.values[:-1]
+
+    def last(self):
+        # 获取最后一个元素
+        return self.values[-1]
+
+    def drop(self, n):
+        # 获取所有元素，除了前N个
+        return self.values[n:]
+
+    def take(self, n):
+        # 获取前N个元素
+        return self.values[:n]
+~~~
+
+
+
+### 5. [运算符相关的魔术方法](https://github.com/SalamanPhoo/Python/blob/master/Article/PythonBasis/python10/6.md)
+
++ 比较运算符
+
+| 魔术方法               | 说明                                                         |
+| ---------------------- | ------------------------------------------------------------ |
+| `__cmp__(self, other)` | 如果该方法返回负数，说明 `self < other`; 返回正数，说明 `self > other`; 返回 0 说明 `self == other `。强烈不推荐来定义 `__cmp__` , 取而代之, 最好分别定义 `__lt__`, `__eq__` 等方法从而实现比较功能。 `__cmp__` 在 Python3 中被废弃了。 |
+| `__eq__(self, other)`  | 定义了比较操作符 == 的行为                                   |
+| `__ne__(self, other)`  | 定义了比较操作符 != 的行为                                   |
+| `__lt__(self, other)`  | 定义了比较操作符 < 的行为                                    |
+| `__gt__(self, other)`  | 定义了比较操作符 > 的行为                                    |
+| `__le__(self, other)`  | 定义了比较操作符 <= 的行为                                   |
+| `__ge__(self, other)`  | 定义了比较操作符 >= 的行为                                   |
+
+~~~python
+class Number(object):
+    def __init__(self, value):
+        self.value = value
+
+    def __eq__(self, other):
+        print('__eq__')
+        return self.value == other.value
+
+    def __ne__(self, other):
+        print('__ne__')
+        return self.value != other.value
+
+    def __lt__(self, other):
+        print('__lt__')
+        return self.value < other.value
+
+    def __gt__(self, other):
+        print('__gt__')
+        return self.value > other.value
+
+    def __le__(self, other):
+        print('__le__')
+        return self.value <= other.value
+
+    def __ge__(self, other):
+        print('__ge__')
+        return self.value >= other.value
+
+
+if __name__ == '__main__':
+    num1 = Number(2)
+    num2 = Number(3)
+    print('num1 == num2 ? --------> {}'.format(num1 == num2))
+    print('num1 != num2 ? --------> {}'.format(num1 == num2))
+    print('num1 < num2 ? --------> {}'.format(num1 < num2))
+    print('num1 > num2 ? --------> {}'.format(num1 > num2))
+    print('num1 <= num2 ? --------> {}'.format(num1 <= num2))
+    print('num1 >= num2 ? --------> {}'.format(num1 >= num2))
+~~~
+
+执行：
+
+~~~python
+__eq__
+num1 == num2 ? --------> False
+__eq__
+num1 != num2 ? --------> False
+__lt__
+num1 < num2 ? --------> True
+__gt__
+num1 > num2 ? --------> False
+__le__
+num1 <= num2 ? --------> True
+__ge__
+num1 >= num2 ? --------> False
+~~~
+
++ 算数运算符
+
+| 魔术方法                    | 说明                                                         |
+| --------------------------- | ------------------------------------------------------------ |
+| `__add__(self, other)`      | 实现了加号运算                                               |
+| `__sub__(self, other)`      | 实现了减号运算                                               |
+| `__mul__(self, other)`      | 实现了乘法运算                                               |
+| `__floordiv__(self, other)` | 实现了 // 运算符                                             |
+| `___div__(self, other)`     | 实现了/运算符. 该方法在 Python3 中废弃. 原因是 Python3 中，division 默认就是 true division |
+| `__truediv__(self, other)`  | 实现了 true division. 只有你声明了 `from __future__ import division` 该方法才会生效 |
+| `__mod__(self, other)`      | 实现了 % 运算符, 取余运算                                    |
+| `__divmod__(self, other)`   | 实现了 divmod() 內建函数                                     |
+| `__pow__(self, other)`      | 实现了 `**` 操作. N 次方操作                                 |
+| `__lshift__(self, other)`   | 实现了位操作 `<<`                                            |
+| `__rshift__(self, other)`   | 实现了位操作 `>>`                                            |
+| `__and__(self, other)`      | 实现了位操作 `&`                                             |
+| `__or__(self, other)`       | 实现了位操作 `                                               |
+| `__xor__(self, other)`      | 实现了位操作 `^`                                             |
+
+
+
+## 十、枚举类
