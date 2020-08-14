@@ -14,7 +14,15 @@
 
 [七、面向对象](#七面向对象)
 
-[八、模块与包](#八模块与包)
+[八、特殊方法](#八特殊方法)
+
+[九、模块与包](#九模块与包)
+
+[十、异常](#十异常)
+
+[十一、I/O编程](#十一I/O编程)
+
+
 
 # Python笔记
 
@@ -30,6 +38,14 @@ str2 = "bbb"	# 双引号
 str3 = '''line1
 line2
 line3'''		# 三引号，表示多行内容
+~~~
+
+格式化字符串（语法糖）：
+
+~~~python
+a = 'hello'
+b = f'{a} world'
+print(b)
 ~~~
 
 
@@ -1855,10 +1871,197 @@ pprint(sys.path)
 
 # sys.platform
 # 表示当前python运行的平台
+print(sys.platform)
+
+# sys.exit()
+# 用于退出程序
+sys.exit('程序已退出')
+
+# os模块让我们可以对操作系统进行访问
+import os
+
+# os.environ
+# 可以获取系统的环境变量 
+print(os.environ['path'])
+
+# os.system()
+# 可以用来执行操作系统的命令
+os.system('notepad')	# 打开记事本
 ~~~
 
 
 
 
 
-## 十、枚举类
+## 十、异常
+
+### 1. 处理异常
+
+> 捕获异常语法：
+>
+> try:
+>
+> ​	代码块（可能出现异常的语句）
+>
+> execpt [error class] as [error name]:
+>
+> ​	代码块（出现异常执行的语句）
+>
+> else:
+>
+> ​	代码块（程序正常运行时执行的语句）
+>
+> finally:
+>
+> ​	代码块（无论是否出现异常都会执行）
+
+~~~python
+print('代码执行之前')
+try:
+    a = 10 / 0
+except:
+    print('出现异常')
+else:
+    print('没出现异常')
+finally:
+    print('最终')
+print('代码执行之后')
+~~~
+
+执行效果：
+
+~~~python
+代码执行之前
+出现异常
+代码执行之后
+~~~
+
+
+
+### 2. 异常的传播
+
+> 在函数中出现异常时，如果函数中对异常做了处理，则异常不会传播，若没处理，异常则会向函数调用出传播，直到传递到全局作用域。
+>
+> 使用`raise`关键字可以主动向外部抛出异常
+
+~~~python
+def add(a, b):
+    if a < 0 or b < 0:
+        # raise用于向外部抛出异常，后边可以跟一个异常类，或者一个异常对象
+        raise Exception('传入参数不能小于0')
+    return a + b
+
+
+add(100, -1)
+~~~
+
+执行效果：
+
+![](images/20200814160647.png)
+
+
+
+### 3. 异常对象
+
+> 当程序的运行过程中出现异常时，异常信息会保存在对应专门的异常对象中，如：
+>
+> `ZeroDivisionError`类的对象专门用来保存除0的异常；
+>
+> `NameError`类是处理变量错误的异常；
+>
+> ` IndexError`索引异常等...
+>
+> [官方文档]( https://docs.python.org/zh-cn/3/library/exceptions.html )
+
+~~~python
+print('代码执行之前')
+try:
+    # a = 10 / 0
+    # print(c)
+    1 + 'h'
+except NameError:
+    print('出现 NameError 异常')
+except ZeroDivisionError:
+    print('出现 ZeroDivisionError 异常')
+except Exception as e:
+    print('未知的异常', e, type(e))
+print('代码执行之后')
+~~~
+
+> + `except`后面能指定捕获的异常
+> + `Exception`是所有异常的父类，此处相当等于`except:`，能捕获所有异常
+> + 异常类后面可以使用 `as xx`获取异常对象
+
+
+
+### 4. 自定义异常对象
+
+> 自定义异常需要继承`Exception`类
+
+~~~python
+class AddException(Exception):
+    pass
+
+
+def add(a, b):
+    if a < 0 or b < 0:
+        raise AddException('自定义异常：传入参数不能小于0')
+    return a + b
+
+
+add(100, -1)
+~~~
+
+执行效果：
+
+![](images/20200814164542.png)
+
+
+
+## 十一、I/O编程
+
+> IO在计算机中指Input/Output，也就是输入和输出
+
+### 1. 文件的打开和关闭
+
+~~~python
+# 打开文件并返回一个文件对象，关键字参数encoding可设置编码格式
+file = open('./source/text.txt', encoding='utf-8')
+# 读取文件内容 read()方法中可传入参数，设置读取字符的数量，默认是-1，读取全部
+print(file.read(1024))
+# 关闭文件
+file.close()
+~~~
+
+`with...as`语句：
+
+~~~python
+with open('./source/text.txt', encoding='utf-8') as file:
+    text = file.read()
+    print(text)
+file.read()
+~~~
+
+执行效果：
+
+![](images/20200814170725.png)
+
+> 使用`with...as`语句操作的文件只能在with中使用，一旦语句结束，文件就会自动close()，不需要手动调用close()方法
+
+
+
+### 2. 读取大文件
+
+~~~python
+with open('source/text2.txt', encoding='utf-8') as file:
+    while True:
+        content = file.read(1024)
+        # 循环读取，content为空时退出循环
+        if not content:
+            print('读取完毕')
+            break
+        print(content)
+~~~
+
+
+
