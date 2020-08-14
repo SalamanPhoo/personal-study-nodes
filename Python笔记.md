@@ -593,6 +593,36 @@ global()
 
 
 
+### 7.  装饰器
+
+~~~python
+def begin_end(func):
+    def new_func(*args, **kwargs):
+        print('开始执行函数')
+        func(*args, **kwargs)
+        print('执行函数结束')
+
+    return new_func
+
+
+@begin_end
+def print_hello(text):
+    print('hello~~~~~~~~~~~' + text)
+
+
+print_hello('芜湖')
+~~~
+
+>装饰器作用：
+>
+>1. 通过装饰器，可以在不修改原来函数的情况下对函数进行扩展，通常用于开发中对功能的扩展。
+>2. 可以为同一个函数指定多个装饰器，此时函数将会按照从内向外的顺序被装饰。
+>3. 遵守开闭原则。
+>
+>`*args, **kwargs`表示接受所有的位置参数和关键字参数
+
+
+
 ## 六、迭代器和生成器
 
 ### 1. 迭代
@@ -893,13 +923,21 @@ print(list2)
 
 ### 1. 面向对象概念
 
-+ **两个基本概念**
+> 对象的定义：
+>
+> 对象是内存中用来存储数据的一块区域；
+>
+> 对象中可以储存各种数据（数值，布尔，函数）；
+>
+> 对象由三部分组成：对象的标识（id） 对象的类型（type） 对象的值（value）
+
++ **面向对象两个基本概念**
 
 > 1. **类：**用来描述具有相同的属性和方法的对象的集合。它定义了该集合中每个对象所共有的属性和方法。
 >
 > 1. **对象：**通过类定义的数据结构实例
 
-+ **三大特性**
++ **面向对象三大特性**
 
 > 1. **继承：**即一个派生类（derived class）继承基类（base class）的字段和方法。继承也允许把一个派生类的对象作为一个基类对象对待。
 > 2. **多态：**它是指对不同类型的变量进行相同的操作，它会根据对象（或类）类型的不同而表现出不同的行为。
@@ -1162,7 +1200,42 @@ usr.__print_user()
 
 
 
-### 7. 类的继承
+### 7. property装饰器
+
+~~~python
+class User:
+    def __init__(self, name):
+        self.__name = name
+
+    @property
+    def name(self):
+        print('get方法执行了')
+        return self.__name
+
+    @name.setter		# 属性名.setter
+    def name(self,name):
+        print('set方法执行了')
+        self.__name = name
+
+
+user = User('小明')
+user.name = '小白'
+print(user.name)
+~~~
+
+执行效果：
+
+~~~python
+set方法执行了
+get方法执行了
+小白
+~~~
+
+> property装饰器，用来将一个get方法，转换为对象的属性，添加property装饰器以后，就可以像调用属性一样使用get方法。
+
+
+
+### 8. 类的继承
 
 继承的基本语法：
 
@@ -1185,19 +1258,27 @@ class ClassName(BaseClassName...):
 ~~~python
 # 父类
 class Pet:
-    def __init__(self, kind, desc, size):
+    def __init__(self, kind, desc):
         self.__kind = kind
         self.__desc = desc
-        self.__size = size
+
     def print_info(self):
         print(self.__dict__)
+
     def simple_print(self):
-        print(self.__kind+'父类的打印方法')
+        print(self.__kind + '父类的打印方法')
+
 # 子类
 class Cat(Pet):
+    def __init__(self, kind, desc, size):
+        # super()可以获取当前类的父类，并且不需要传递self
+        super().__init__(kind, desc)
+        self.__size = size
+
     # 重写父类的方法
     def simple_print(self):
         print('子类重写后的方法')
+
 # 实例化并调用
 new_cat = Cat('猫', '布偶猫', '小')
 new_cat.print_info()
@@ -1238,7 +1319,7 @@ if __name__ == '__main__':
 
 
 
-### 8. 类的多态
+### 9. 类的多态
 
 > 多态指对不同类型的变量进行相同的操作，它会根据对象（或类）类型的不同而表现出不同的行为
 
@@ -1280,152 +1361,39 @@ Hello ! 尊敬的用户：水水水
 
 
 
-## 八、模块与包
+### 10.垃圾回收
 
-### 1. 模块
-
->  模块是一个包含 Python 定义和语句的文件。文件名就是模块名后跟文件后缀 `.py` 。在一个模块内部，模块名（作为一个字符串）可以通过全局变量 `__name__` 的值获得。 
-
-比如，创建一个`fibo.py`的模块：
+> 在程序中，没有被引用的对象就是垃圾，这种垃圾对象过多会影响到程序运行的性能。在Python中有自动的垃圾回收机制，会自动将没有引用的对象删除
 
 ~~~python
-# fibo.py
+class ClassA():
+    def __init__(self):
+        self.name = 'Class A'
+	
+    # del是一个特殊的方法，它会在对象被垃圾回收前调用
+    def __del__(self):
+        print('ClassA 对象被删除了', self)
 
-def fibo1(n):
-    a, b = 0, 1
-    for x in range(n):
-        print(a, end='  ')
-        a, b = b, a + b
-    print()
-    
-def fibo2(n):
-    a, b = 0, 1
-    for x in range(n):
-        print(a, end='--')
-        a, b = b, a + b
-    print()
-~~~
 
-在新的页面调用模块：
-
-~~~python
-# fibo_test.py
-import fibo
-
-fibo1.fibo(9)
-print(fibo.__name__)
+a = ClassA()
+print(a.name)
+a = None		# 将A设为None，并且a没有被任何变量引用，所以变成了垃圾对象
+input('回车键退出......')
 ~~~
 
 执行效果：
 
-![](images/20200813094127.png)
-
-`import`语句还有一个变体：
-
 ~~~python
-from fibo import fibo1, fibo2
-
-fibo1(9)
-fibo2(9)
-~~~
-
-> 这样不会把被调模块名引入到局部变量表里，比如此处的`fibo`变量是未定义的。
-
-还可以直接导入模块内所有名称：
-
-~~~python
-from fib import *
-~~~
-
->  这会调入所有非以下划线（`_`）开头的名称。 
->
->  注意通常情况下从一个模块或者包内调入 `*` 的做法是不太被接受的， 因为这通常会导致代码的可读性很差 ， 因为它在解释器中引入了一组未知的名称，而它们很可能会覆盖一些你已经定义过的东西。 
-
-还可以在模块之后使用`as`将名称绑定引入的模块：
-
-~~~python
-import fibo as fb
-from fibo import fibo1, fibo2 as fb
+Class A
+ClassA 对象被删除了 <__main__.ClassA object at 0x000002D792AD1190>
+回车键退出......
 ~~~
 
 
 
-### 2. 主模块和非主模块
+## 八、特殊方法
 
-> 在 Python 函数中，如果一个函数调用了其他函数完成一项功能，我们称这个函数为主函数，如果一个函数没有调用其他函数，我们称这种函数为非主函数。主模块和非主模块的定义也类似，如果一个模块被直接使用，而没有被别人调用，我们称这个模块为主模块，如果一个模块被别人调用，我们称这个模块为非主模块。
-
-+ **`__name__`属性：**
-
-如上面所提到的：`__name__`属性可以获取模块的名称，但是也可以利用这个属性来判断是否为主模块：
-
-~~~python
-if __name__ == '__main__':
-    print('当前为主模块')
-~~~
-
-> 当`__name__`属性值为`__main__`时，当前模块为主模块，此处可执行不想被其他模块引用的操作
-
-`dir()`函数：
-
-~~~python
-import fibo,sys
-print(dir(fibo))
-print(dir(sys))
-~~~
-
-执行效果：
-
-![](images/20200813102921.png)
-
-> 内置函数 [`dir()`](https://docs.python.org/zh-cn/3/library/functions.html#dir) 用于查找模块定义的名称。 它返回一个排序过的字符串列表。它会列出所有类型的名称：变量，模块，函数，等等
-
-
-
-### 3. 包
-
->  包是一种通过用 “带点号的模块名” 来构造 Python 模块命名空间的方法 
-
-![](images/20200813113455.png)
-
-> 模块`fibo.py`在包`com.slmd.py`下。
->
-> 每个包下都会有一个`__init__.py`文件，因为这个文件是必须的，否则，Python 就把这个目录当成普通目录，而不是一个包 。 `__init__.py` 可以是空文件，也可以有Python代码，因为 `__init__.py` 本身就是一个模块，而它对应的模块名就是它的包名。
-
-调用`fibo.py`模块：
-
-~~~python
-import com.slmd.py.fibo as fb
-import com.slmd.py as fibo
-from com.slmd.py.fibo import fibo as fibo1
-
-fb.fibo(9)
-fibo.fibo.fibo(9)
-fibo1(9)
-~~~
-
-执行效果：
-
-![](images/20200813113641.png)
-
-> 包支持`__path__`属性， 它被初始化为一个列表，其中包含在执行该文件中的代码之前保存包的文件 `__init__.py` 的目录的名称。这个变量可以修改；这样做会影响将来对包中包含的模块和子包的搜索。 
-
-
-
-### 4. 作用域
-
-> 以`_`为前缀命名的函数或变量都是非公开的（private），不应该被直接引用
-
-
-
-## 九、魔术方法
-
-***这个模块下代码大部分都是复制粘贴的，感觉这一节只要知道魔术方法是啥就行了，那些固定的方法以后慢慢摸索***
-
-> 在 Python 中，所有以 "__" 双下划线包起来的方法，都统称为"魔术方法（Magic Method）"。
->
-> 比如类初始化方法`__init__`。
->
-> 使用内置函数`dir()`可以列出类中所有魔术方法。
+> 在 Python 中，所有以 "__" 双下划线包起来的方法，都统称为特殊方法，或者魔术方法（Magic Method），特殊方法一般不需要我们手动调用，会在特殊情况下自动执行。[官方文档](https://docs.python.org/zh-cn/3/reference/datamodel.html#special-method-names)
 
 ### 1. [构造和初始化](https://github.com/SalamanPhoo/Python/blob/master/Article/PythonBasis/python10/2.md)
 
@@ -1443,13 +1411,14 @@ class User:
         print('调用了__init__方法')
         self.__name = name
         self.__age = age
+	
+    # 此方法在尝试将对象转化为字符串的时候调用，可以指定对象转换字符串的结果
+    def __str__(self):
+        return 'User [name = %s , age = %d]' % (self.__name, self.__age)
 
-    def print_user(self):
-        print(self.__dict__)
 
-
-user = User('huahua', 11)
-user.print_user()
+user = User('小白', 11)
+print(user)
 ~~~
 
 执行结果：
@@ -1718,6 +1687,177 @@ num1 >= num2 ? --------> False
 | `__and__(self, other)`      | 实现了位操作 `&`                                             |
 | `__or__(self, other)`       | 实现了位操作 `                                               |
 | `__xor__(self, other)`      | 实现了位操作 `^`                                             |
+
+
+
+## 九、模块与包
+
+### 1. 模块
+
+>  一个`.py`文件就是一个模块。在一个模块内部，模块名可以通过全局变量 `__name__` 的值获得。 
+>
+>  模块化优点：①方便开发 ②方便维护 ③模块可以复用
+
+比如，创建一个`fibo.py`的模块：
+
+~~~python
+# fibo.py
+
+def fibo1(n):
+    a, b = 0, 1
+    for x in range(n):
+        print(a, end='  ')
+        a, b = b, a + b
+    print()
+    
+def fibo2(n):
+    a, b = 0, 1
+    for x in range(n):
+        print(a, end='--')
+        a, b = b, a + b
+    print()
+~~~
+
+在新的页面调用模块：
+
+~~~python
+# fibo_test.py
+import fibo
+
+fibo1.fibo(9)
+print(fibo.__name__)
+~~~
+
+执行效果：
+
+![](images/20200813094127.png)
+
+`import`语句还有一个变体：
+
+~~~python
+from fibo import fibo1, fibo2
+
+fibo1(9)
+fibo2(9)
+~~~
+
+> 这样不会把被调模块名引入到局部变量表里，比如此处的`fibo`变量是未定义的。
+
+还可以直接导入模块内所有名称：
+
+~~~python
+from fib import *
+~~~
+
+>  这会调入所有非以下划线（`_`）开头的名称。 
+>
+>  注意通常情况下从一个模块或者包内调入 `*` 的做法是不太被接受的， 因为这通常会导致代码的可读性很差 ， 因为它在解释器中引入了一组未知的名称，而它们很可能会覆盖一些你已经定义过的东西。 
+
+还可以在模块之后使用`as`将名称绑定引入的模块：
+
+~~~python
+import fibo as fb
+from fibo import fibo1, fibo2 as fb
+~~~
+
+
+
+### 2. 主模块和非主模块
+
+> 在 Python 函数中，如果一个函数调用了其他函数完成一项功能，我们称这个函数为主函数，如果一个函数没有调用其他函数，我们称这种函数为非主函数。主模块和非主模块的定义也类似，如果一个模块被直接使用，而没有被别人调用，我们称这个模块为主模块，如果一个模块被别人调用，我们称这个模块为非主模块。
+
++ **`__name__`属性：**
+
+如上面所提到的：`__name__`属性可以获取模块的名称，但是也可以利用这个属性来判断是否为主模块：
+
+~~~python
+if __name__ == '__main__':
+    print('当前为主模块')
+~~~
+
+> 当`__name__`属性值为`__main__`时，当前模块为主模块，此处可执行不想被其他模块引用的操作
+
+`dir()`函数：
+
+~~~python
+import fibo,sys
+print(dir(fibo))
+print(dir(sys))
+~~~
+
+执行效果：
+
+![](images/20200813102921.png)
+
+> 内置函数 [`dir()`](https://docs.python.org/zh-cn/3/library/functions.html#dir) 用于查找模块定义的名称。 它返回一个排序过的字符串列表。它会列出所有类型的名称：变量，模块，函数，等等
+
+
+
+### 3. 包
+
+>  包是一种通过用 “带点号的模块名” 来构造 Python 模块命名空间的方法 
+
+![](images/20200813113455.png)
+
+> 模块`fibo.py`在包`com.slmd.py`下。
+>
+> 每个包下都会有一个`__init__.py`文件，因为这个文件是必须的，否则，Python 就把这个目录当成普通目录，而不是一个包 。 `__init__.py` 可以是空文件，也可以有Python代码，因为 `__init__.py` 本身就是一个模块，而它对应的模块名就是它的包名。
+
+调用`fibo.py`模块：
+
+~~~python
+import com.slmd.py.fibo as fb
+import com.slmd.py as fibo
+from com.slmd.py.fibo import fibo as fibo1
+
+fb.fibo(9)
+fibo.fibo.fibo(9)
+fibo1(9)
+~~~
+
+执行效果：
+
+![](images/20200813113641.png)
+
+> 包支持`__path__`属性， 它被初始化为一个列表，其中包含在执行该文件中的代码之前保存包的文件 `__init__.py` 的目录的名称。这个变量可以修改；这样做会影响将来对包中包含的模块和子包的搜索。 
+
+
+
+### 4. 作用域
+
+> 以`_`为前缀命名的函数或变量都是非公开的（private），只能在模块内部访问，在通过`from ... import *`引入时，不会引入`_`下划线开头的变量
+
+
+
+### 5. Python标准库
+
+> `sys`模块：提供了一些变量和函数，使我们可以获取python解析器的信息，或通过函数来操作python解析器。[官方文档](https://docs.python.org/zh-cn/3/library/sys.html#module-sys)
+
+~~~python
+# 引入sys模块
+import sys
+
+# sys.argv
+# 获取执行代码时，命令行(python命令)中所包含的参数。该属性是一个list，保存了当前命令所有参数
+print(sys.argv)
+
+# sys.modules
+# 获取当前程序中引入的所有模块，返回一个dict，key是模块的名字，value是模块的对象
+print(sys.modules)
+
+# pprint模块提供的pprint()方法对打印的数据做简单的格式化
+from pprint import pprint
+pprint(sys.modules)
+
+# sys.path
+# 返回一个list,保存模块搜索的路径
+pprint(sys.path)
+
+# sys.platform
+# 表示当前python运行的平台
+~~~
+
+
 
 
 
