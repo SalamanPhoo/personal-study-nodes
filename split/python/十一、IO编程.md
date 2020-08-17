@@ -24,7 +24,7 @@ file.read()
 
 执行效果：
 
-![](C:/Users/hcf/Documents/Note/github/personal-study-nodes/images/20200814170725.png)
+![](/images/20200814170725.png)
 
 > 使用`with...as`语句操作的文件只能在with中使用，一旦语句结束，文件就会自动close()，不需要手动调用close()方法
 
