@@ -2235,23 +2235,23 @@ os.rename('source/aa.txt','source/bb.txt')
 
 + `Pattern.split(string, maxsplit=0)`
 
-  >  等价于 [split()](#4-re.split) 函数，使用了编译后的样式 
+  >  等价于 [split()](#4-resplit) 函数，使用了编译后的样式 
 
 + `Pattern.findall(string[, pos[, endpos]])`
 
-  > 类似函数 [findall()](#5-re.findall) ， 使用了编译后样式，但也可以接收可选参数 pos 和 endpos ，限制搜索范围
+  > 类似函数 [findall()](#5-refindall) ， 使用了编译后样式，但也可以接收可选参数 pos 和 endpos ，限制搜索范围
 
 + `Pattern.finditer(string[, pos[, endpos]])`
 
-  > 类似函数 [finiter()](#5-re.findall) ， 使用了编译后样式，但也可以接收可选参数 pos 和 endpos ，限制搜索范围
+  > 类似函数 [finiter()](#5-refindall) ， 使用了编译后样式，但也可以接收可选参数 pos 和 endpos ，限制搜索范围
 
 + `Pattern.sub(repl, string, count=0)`
 
-  > 等价于 [sub()](#6-re.sub) 函数，使用了编译后的样式
+  > 等价于 [sub()](#6-resub) 函数，使用了编译后的样式
 
 + `Pattern.subn(repl, string, count=0)`
 
-  > 等价于 [subn()](#6-re.sub) 函数，使用了编译后的样式。
+  > 等价于 [subn()](#6-resub) 函数，使用了编译后的样式。
 
 + `Pattern.flags`
 
