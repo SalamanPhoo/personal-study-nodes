@@ -22,6 +22,8 @@
 
 [十一、I/O编程](#十一io编程)
 
+[十二、正则表达式](#十二正则表达式)
+
 
 
 # Python笔记
@@ -2131,5 +2133,232 @@ os.rmdir('a')
 os.remove('source/aa.txt')
 # 重命名，参数可以是一个完整的路径
 os.rename('source/aa.txt','source/bb.txt')
+~~~
+
+
+
+## 十二、正则表达式
+
+> python的`re`模块提供了对正则表达式操作的方式，此处先提供关于正则表达式的学习资料：
+>
+> [github正则表达式教程]( https://github.com/cdoco/learn-regex-zh )	[在线正则校验工具]( https://tool.lu/regex/ )	[re模块官方文档]( https://docs.python.org/zh-cn/3/library/re.html )
+
+### 1. re.compile
+
+> `re.compile(pattern, flags=0)`：将正则表达式编译成一个[正则表达式对象](#7-正则表达式对象)
+>
+> 参数详解：
+>
+> + pattern	需要编译的正则表达式
+> + flags    匹配模式/修饰符
+>   + `re.I` =>  `re.IGNORECASE`  进行忽略大小写匹配
+>   + `re.M` => `re.MULTILINE`  `^` 和 `$` 可以匹配多行（换行符后面的字符）
+>   + `re.S` => `re.DOTALL`  让 `.` 特殊字符匹配任何字符，包括换行符
+>   + `re.X` => `re.VERBOSE`    这个标记允许你编写更具可读性更友好的正则表达式。通过分段和添加注释。空白符号会被忽略，除非在一个字符集合当中或者由反斜杠转义，或者在 *?, (?: or (?P<…> 分组之内
+>
+> 注：通过 ` re.compile()` 编译后的样式，和模块级的函数会被缓存， 所以少数的正则表达式使用无需考虑编译的问题。
+
+
+
+### 2. re.search
+
+> `re.search(pattern, string, flags=0)`：
+>
+>  扫描整个 *字符串* 找到匹配样式的第一个位置，并返回一个相应的 [匹配对象](#8-匹配对象)。如果没有匹配，就返回一个 `None`  
+
+
+
+### 3. re.match
+
+> `re.match(pattern, string, flags=0)`：
+>
+>  如果 *string* 开始的0或者多个字符匹配到了正则表达式样式，就返回一个相应的 [匹配对象](#8-匹配对象) 。 如果没有匹配，就返回 `None`  
+>
+>  注意：即便是 `MULTILINE` 多行模式， `re.match()` 也只匹配字符串的开始位置，而不匹配每行开始。匹配每行开始需要使用 `re.search()`
+>
+> `re.fullmatch(pattern, string, flags=0)`：
+>
+> 如果整个 *string* 匹配到正则表达式样式，就返回一个相应的 [匹配对象](#8-匹配对象)。 否则就返回一个 None 
+
+
+
+### 4. re.split
+
+> `re.split(pattern, string, maxsplit=0, flags=0)`：
+>
+> 用 pattern 分开 string 。 如果在 pattern 中捕获到括号，那么所有的组里的文字也会包含在列表里。如果 maxsplit 非零， 最多进行 maxsplit 次分隔， 剩下的字符全部返回到列表的最后一个元素
+
+
+
+### 5. re.findall
+
+> `re.findall(pattern, string, flags=0)`：
+>
+> 对 *string* 返回一个不重复的 *pattern* 的匹配列表， *string* 从左到右进行扫描，匹配按找到的顺序返回。如果样式里存在一到多个组，就返回一个组合列表；就是一个元组的列表（如果样式里有超过一个组合的话）。空匹配也会包含在结果里 
+>
+> `re.finditer(pattern, string, flags=0)`：
+>
+>  *pattern* 在 *string* 里所有的非重复匹配，返回为一个迭代器 `iterator` 保存了 [匹配对象](#8-匹配对象) 。 *string* 从左到右扫描，匹配按顺序排列。空匹配也包含在结果里。 
+
+
+
+### 6. re.sub
+
+> `re.sub(pattern, repl, string, count=0, flags=0)`：
+>
+>  返回通过使用 *repl* 替换在 *string* 最左边非重叠出现的 *pattern* 而获得的字符串。 如果样式没有找到，则不加改变地返回 *string*。 
+>
+> `re.subn(pattern, repl, string, count=0, flags=0)`：
+>
+> 行为与 sub() 相同，但是返回一个元组 (字符串, 替换次数)
+
+
+
+### 7. 正则表达式对象
+
+正则表达式对象支持的属性和方法：
+
++ `Pattern.search(string[, pos[, endpos]])`
+
+  > 扫描整个 string 寻找第一个匹配的位置， 并返回一个相应的 匹配对象。如果没有匹配，就返回 `None `
+  >
+  > + 可选的第二个参数 `pos` 给出了字符串中开始搜索的位置索引，默认为 0
+  > + 可选参数 *endpos* 限定了字符串搜索的结束 
+
++ `Pattern.match(string[, pos[, endpos]])`
+
+  > 如果 string 的 开始位置 能够找到这个正则样式的任意个匹配，就返回一个相应的 匹配对象。如果不匹配，就返回 None 
+
++ `Pattern.fullmatch(string[, pos[, endpos]])`
+
+  > 如果整个 string 匹配这个正则表达式，就返回一个相应的 匹配对象 。 否则就返回 None 
+
++ `Pattern.split(string, maxsplit=0)`
+
+  >  等价于 [split()](#4-re.split) 函数，使用了编译后的样式 
+
++ `Pattern.findall(string[, pos[, endpos]])`
+
+  > 类似函数 [findall()](#5-re.findall) ， 使用了编译后样式，但也可以接收可选参数 pos 和 endpos ，限制搜索范围
+
++ `Pattern.finditer(string[, pos[, endpos]])`
+
+  > 类似函数 [finiter()](#5-re.findall) ， 使用了编译后样式，但也可以接收可选参数 pos 和 endpos ，限制搜索范围
+
++ `Pattern.sub(repl, string, count=0)`
+
+  > 等价于 [sub()](#6-re.sub) 函数，使用了编译后的样式
+
++ `Pattern.subn(repl, string, count=0)`
+
+  > 等价于 [subn()](#6-re.sub) 函数，使用了编译后的样式。
+
++ `Pattern.flags`
+
+  >  正则匹配标记 
+
++ `Pattern.groups` 
+
+  > 捕获到的模式串中组的数量
+
++ `Pattern.groupindex`
+
+  >  映射由 `(?P)` 定义的命名符号组合和数字组合的字典。如果没有符号组，那字典就是空的。 
+
++ `Pattern.pattern`
+
+  > 编译对象的原始样式字符串
+
+[官方文档](https://docs.python.org/zh-cn/3/library/re.html#regular-expression-objects)
+
+
+
+### 8. 匹配对象
+
+匹配对象支持的属性和方法：
+
++ `Match.expand(template)`
+
+  >  对 *template* 进行反斜杠转义替换并且返回 
+
++ `Match.group([group1, ...])`
+
+  > 返回一个或者多个匹配的子组。如果只有一个参数，结果就是一个字符串，如果有多个参数，结果就是一个元组（每个参数对应一个项），如果没有参数，组1默认到0（整个匹配都被返回）
+  >
+  > `Match.__getitem__(g)`： 等价于 `m.group(g)` 
+
++ `Match.groups(default=None)`
+
+  > 返回一个元组，包含所有匹配的子组，在样式中出现的从1到任意多的组合。 *default* 参数用于不参与匹配的情况，默认为 `None`
+
++ `Match.groupdict(default=None)`
+
+  >  返回一个字典，包含了所有的 *命名* 子组。key就是组名。 *default* 参数用于不参与匹配的组合；默认为 `None`。 
+
++ `Match.start([group])` 和 `Match.end([group])`
+
+  >  返回 *group* 匹配到的字串的开始和结束标号。*group* 默认为0（意思是整个匹配的子串）。 [参考文档](https://docs.python.org/zh-cn/3/library/re.html#re.Match.start)
+
++ `Match.span([group])`
+
+  > 对于一个匹配 *m* ， 返回一个二元组 `(m.start(group), m.end(group))` 。 注意如果 *group* 没有在这个匹配中，就返回 `(-1, -1)` 。*group* 默认为0，就是整个匹配。
+
++ `Match.pos`
+
+  >  *pos* 的值，这个是正则引擎开始在字符串搜索一个匹配的索引位置
+
++ `Match.endpos`
+
+  >  *endpos* 的值，这个是正则引擎停止在字符串搜索一个匹配的索引位置
+
++ `Match.lastindex`
+
+  >  捕获组的最后一个匹配的整数索引值，或者 `None` 如果没有匹配产生的话 
+
++ `Match.lastgroup`
+
+  > 最后一个匹配的命名组名
+
++ `Match.re`
+
+  > 返回产生这个实例的 正则对象 
+
++ `Match.string`
+
+  > 传递到 match() 或 search() 的字符串
+
+[官方文档](https://docs.python.org/zh-cn/3/library/re.html#match-objects)
+
+一个简单的例子：
+
+~~~python
+# 课题 取到数字
+content = 'Tom has 100 dollars'
+# 贪婪匹配
+mh = re.match(r'^tom.*(\d+)\s.*s$', content, re.I)
+# 非贪婪匹配
+mh2 = re.match(r'^tom.*?(\d+)\s.*s$', content, re.I)
+print(mh.group(1))
+print(mh2.group(1))
+# 存在换行符
+content2 = '''Tom has 100 
+            dollars'''
+mh3 = re.match(r'^tom.*?(\d+)\s.*s$', content2, re.I | re.S)
+print(mh3.group(1))
+
+# 正则对象和匹配对象
+prog = re.compile(r'the', re.I)
+str = 'The fat cat sat on the mat'
+match = prog.findall(str)
+print(match)
+~~~
+
+执行效果：
+
+~~~python
+0
+100
+100
+['The', 'the']
 ~~~
 
