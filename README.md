@@ -5,4 +5,7 @@
 ## 目录
 
 1. **Python笔记** [[ALL](Python笔记.md) [SPLIT](split/python/README.md)] 
+2. [React笔记](React笔记.md)
+3. [Typescript笔记](Typescript笔记.md)
+4. [其他](NodeList.md)
 
